@@ -1,30 +1,31 @@
 $(document).ready(function() {
 	
-	$("#form_menuPadre").show();
-	$("#form_menuHijo").hide();
-	
-	$("#optMenu").prop("checked", true);
-	
 	var cod_menu = null;
 	var row=null;
 	
+	var opcion="menu";
+	
+	inicializarPopUp(1);
+	 
 	//Buscar Menus
 	$("#buscarMenu").click(function(e) {	
 		e.preventDefault();
-	
-		var oTable = $('#tableNormal').dataTable();
 		
 		var formData = $('#busquedaMenu').serialize();
+		var oTable = $('#tableNormal').dataTable();
 		
-		$.get("listMenus",formData, function(data, status) {
+		$('#pageBody').prepend(block);
+
+		$.get("listarMenus",formData, function(data, status) {
 			
-			//alert("Data: " + data + "\nStatus: " + status);
-		    
+			block.remove();
+			
 			oTable.fnClearTable();
             
-            $.each(data, function(key, value) {
+            $.each(data.objeto, function(key, value) {
             	  	
-                oTable.fnAddData([value.cod_menu,
+                oTable.fnAddData([
+							      value.cod_menu,
                                   value.sistema.cod_sistema,
                                   value.sistema.nombre,
                                   value.nombre,value.descripcion,value.fecha_creacion,
@@ -36,41 +37,45 @@ $(document).ready(function() {
                                   '<span  class="icon-close"></span></a>'
                                   ]);
             });
-            oTable.fnDraw();
+           
 		});
+		
+		 oTable.fnDraw();
 	});
 	
+	//Bonotes Modal y Agregar Principal
 	$("#btnClosePMenu,#btnCerrarPMenu,#btnAgregarMenu").click(function(e) {
 		$('.form-group').removeClass('has-error');
-		var optRadio = $("input[name='cabecera']:checked").val();
-		var validator;
 		
-		$("#form_menuPadre").show();
-		$("#optMenu").prop("checked", true);
+		validatorPadre = $("#form_menu_padre").validate();	
+		validatorHijo = $("#form_menu_hijo").validate();
 		
-		if(optRadio=="menu")
-		{
-			validator = $("#form_menuPadre").validate();
-			
-		}
-		else
-		{
-			validator = $("#form_menuHijo").validate();
-				
-		}
-		$('#form_menuHijo').trigger("reset");
-		$('#form_menuPadre').trigger("reset");
-		validator.resetForm();
+		validatorPadre.resetForm();
+		validatorHijo.resetForm();
+		
+		$('#form_menu_padre').trigger("reset");
+		$('#form_menu_hijo').trigger("reset");
+		
 		$('[name=estado]').select2("val", "");
+		
 		$('#modalAgregarMenu').modal('hide');
+		
+		$("#form_menu_padre [name='nombre']").parent().removeClass('has-error');
+		$("#form_menu_hijo [name='nombre']").parent().removeClass('has-error');
+		
+		inicializarPopUp(1);
+
+	});
+	//Agregar Principal
+	$("#btnAgregarMenu").click(function(e) {
+		cargarSistema();
 	});
 	
+	//Combo Menu en opcion SubMenu
 	$("#btnAgregarMenu").click(function(e) {
-		
-		$("#optMenu").prop("checked", true)
-		
-		cargarSistema();
-		cargarSistemaFormHijo();
+		var menuPadres="";
+
+		cargarMenu();
 	});
 	
 	//Agregar/Modificar Menus
@@ -79,16 +84,14 @@ $(document).ready(function() {
 		var form = "";
 		var oTable = $('#tableNormal').dataTable();
 		
-		var optRadio = $("input[name='cabecera']:checked").val();
-		
-		if(optRadio=="menu")
+		if(opcion=="menu")
 		{
-			form = $('#form_menuPadre');
+			form = $('#form_menu_padre');
 			if(form.valid()== true){
-				var formData = $('#form_menuPadre').serialize();
+				var formData = $('#form_menu_padre').serialize();
 				
-				$('[name=cod_menu]', '#form_menuPadre').val() == "" ? 
-					$.post("agregarMenuPadre",formData, function(data, status){
+				$('[name=cod_menu]', '#form_menu_padre').val() == "" ? 
+					$.post("saveMenuPadre",formData, function(data, status){
 						oTable.fnAddData( [
 		                                   data.objeto.cod_menu,
 		                                   data.objeto.sistema.cod_sistema,
@@ -105,7 +108,7 @@ $(document).ready(function() {
 		                                 );
 						toastr.success(data.mensaje, 'Mensaje');
 					})
-					:$.post("actualizarMenuPadre",formData, function(data, status){
+					:$.post("updateMenuPadre",formData, function(data, status){
 						oTable.fnUpdate( [
 		                                   data.objeto.cod_menu,
 		                                   data.objeto.sistema.cod_sistema,
@@ -124,17 +127,17 @@ $(document).ready(function() {
 				    });	
 				$('#modalAgregarMenu').modal('hide');
 			}
-			validator = $("#form_menuPadre").validate();
-			$('#form_menuPadre').trigger("reset");
+			validator = $("#form_menu_padre").validate();
+			$('#form_menu_padre').trigger("reset");
 		}
 		else
 		{
-			form = $('#form_menuHijo');
+			form = $('#form_menu_hijo');
 			if(form.valid()== true){
-				var formData = $('#form_menuHijo').serialize();
+				var formData = $('#form_menu_hijo').serialize();
 				
-				$('[name=cod_menu]', '#form_menuHijo').val() == "" ? 
-					$.post("agregarMenuHijo",formData, function(data, status){
+				$('[name=cod_menu]', '#form_menu_hijo').val() == "" ? 
+					$.post("saveMenuHijo",formData, function(data, status){
 						oTable.fnAddData( [
 		                                   data.objeto.cod_menu,
 		                                   data.objeto.sistema.cod_sistema,
@@ -151,7 +154,7 @@ $(document).ready(function() {
 		                                 );
 						toastr.success(data.mensaje, 'Mensaje');
 					})
-					:$.post("actualizarMenuHijo",formData, function(data, status){
+					:$.post("updateMenuHijo",formData, function(data, status){
 						oTable.fnUpdate( [
 		                                   data.objeto.cod_menu,
 		                                   data.objeto.sistema.cod_sistema,
@@ -170,113 +173,138 @@ $(document).ready(function() {
 				    });	
 				$('#modalAgregarMenu').modal('hide');
 			}
-			validator = $("#form_menuPadre").validate();
-			$('#form_menuPadre').trigger("reset");
+			validator = $("#form_menu_padre").validate();
+			$('#form_menu_padre').trigger("reset");
 		}
 
 	});
 	
+	//Editar
 	$('#tableNormal').on( 'click', '#editMenu', function (e) {
         e.preventDefault();
+        
+        $('#pageBody').prepend(block);
+        
         var oTable = $('#tableNormal').dataTable();
-        cod_menu = $(this).parents('tr:first').find('td:first').text();
+        
         row = $(this).parents('tr')[0];
         
+        cod_menu = $(this).parents('tr:first').find('td:first').text();
+        
         var cod_sistema = oTable.fnGetData(row)[1];
-        
-		var menuPadres="";
-
-		$("#padresList option").remove();
-		$('#padresList').attr('placeholder', 'Menu').select2();
-		
-		menuPadres += '<option value=""></option>';
-		$.get("listMenusPadres", function(data, status) {
-			 $.each(data, function(key, value) { 
-        	 	 menuPadres += "<option value="+value.cod_menu + ">"+value.nombre+"</option>";
-        	 });
-			 
-        	 $("#padresList").append(menuPadres);
-        	 $("#padresList").select2().select2("val", cod_menu);
-		 });
-        
-        
-        $.get("getMenu",{ cod_menu : cod_menu }, function(data, status) {
+    	
+        cargarMenu(cod_menu);	
+	    
+        $.get("buscaMenu",{ cod_menu : cod_menu }, function(data, status) {
         	
-			$.each(data, function(key, value){
+        	block.remove();
+        	
+			$.each(data.objeto, function(key, value){
         		if(value != null){    		
-        			if(data.orden == 0){
+        			if(data.objeto.orden == 0){
         				key =='estado' ? 
-        						$('[name=estado]','#form_menuPadre').select2("val", value) : 
-        							$('[name='+key+']', '#form_menuPadre').val(value);	
-        				$("#optMenu").prop("checked", true);
+        						$('[name=estado]','#form_menu_padre').select2("val", value) : 
+        							$('[name='+key+']', '#form_menu_padre').val(value);	
+        				
+        				inicializarPopUp(1);
         			}else
         			{
         				key =='estado' ? 
-        						$('[name=estado]','#form_menuHijo').select2("val", value) : 
-        							$('[name='+key+']', '#form_menuHijo').val(value);	
+        						$('[name=estado]','#form_menu_hijo').select2("val", value) : 
+        							$('[name='+key+']', '#form_menu_hijo').val(value);	
         				if(key =='grupo')
         				{
-        					$('[name=grupo]','#form_menuHijo').select2("val", value);
+        					$('[name=grupo]','#form_menu_hijo').select2("val", value);
         				}
-        				  $("#optSubMenu").prop("checked", true);
+        				inicializarPopUp(2);
         			}
         		}
         	});
-			cargarSistemaFormHijo(cod_sistema);
+			
 			cargarSistema(cod_sistema);
 		  
         	$('#modalAgregarMenu').modal('show');
 		});
 	});
 	
+	//Eliminar Perfil
 	$('#tableNormal').on( 'click', 'span.icon-close', function (e) {
         e.preventDefault();
      
         cod_menu = $(this).parents('tr:first').find('td:first').text();
         row = $(this).parents('tr')[0];
+        
         $('#deleteModalMenu').modal('show');
 	});
 	
-	//Eliminar Menu
+	//Eliminar Perfil en Modal
 	$("#btnEliminarMenu").click(function(e) {
 		e.preventDefault();
 		var oTable = $('#tableNormal').dataTable();
+		
 		oTable.fnDeleteRow(row);
 		
-		var formData = $('#form_menu').serialize();
-		 $.post("eliminarMenu",{ cod_menu : cod_menu }, function(data, status){
+		$.post("deleteMenu",{ cod_menu : cod_menu }, function(data, status){
 		        toastr.success(data.mensaje, 'Mensaje');
 		    });
 		$('#deleteModalMenu').modal('hide');
 	});
 	
-	//Combo Menu en opcion SubMenu
-	$("#btnAgregarMenu").click(function(e) {
-		var menuPadres="";
-
-		$("#padresList option").remove();
-		$('#padresList').attr('placeholder', 'Menu').select2();
-		
-		menuPadres += '<option value=""></option>';
-		$.get("listMenusPadres", function(data, status) {
-			 $.each(data, function(key, value) { 
-        	 	 menuPadres += "<option value="+value.cod_menu + ">"+value.nombre+"</option>";
-        	 });
-			 
-        	 $("#padresList").append(menuPadres);
-        	 $("#padresList").select2().select2("val", cod_menu);
-		 });
-	});
-	
-	//Otros
 	//Cambiar Diseño del modal para Padres e hijos
-	$("#optMenu").click(function(e) {
-		$("#form_menuPadre").show();
-		$("#form_menuHijo").hide();
+	$("#btnMenu").click(function(e) {
+		
+		opcion="menu";
+		
+		$("#form_menu_padre").show();
+		$("#form_menu_hijo").hide();
+		
+		$("#btnMenu").removeClass();
+		$("#btnSubMenu").removeClass();
+		
+		$('#btnSubMenu').addClass('btn blue');
+		$('#btnMenu').addClass('btn red');		
 	});
-	$("#optSubMenu").click(function(e) {
-		$("#form_menuHijo").show();
-		$("#form_menuPadre").hide();
+	$("#btnSubMenu").click(function(e) {
+		
+		opcion="submenu";
+		
+		$("#form_menu_hijo").show();
+		$("#form_menu_padre").hide();
+		
+		$("#btnMenu").removeClass();
+		$("#btnSubMenu").removeClass();
+		
+		$('#btnSubMenu').addClass('btn red');
+		$('#btnMenu').addClass('btn blue');
 	});
-	
+
 });
+
+
+var inicializarPopUp = function (tipo) {
+	// 1 --> Menu // 2 -->SubMenu
+	if(tipo==1)
+	{
+		$("#form_menu_padre").show();
+		$("#form_menu_hijo").hide();
+		
+		$("#btnMenu").removeClass();
+		$("#btnSubMenu").removeClass();
+		
+		$('#btnMenu').addClass('btn red');
+		$('#btnSubMenu').addClass('btn blue');
+				
+	}
+	else
+	{
+	
+		$("#form_menu_padre").hide();
+		$("#form_menu_hijo").show();
+		
+		$("#btnMenu").removeClass();
+		$("#btnSubMenu").removeClass();
+		
+		$('#btnMenu').addClass('btn blue');
+		$('#btnSubMenu').addClass('btn red');
+	}
+}

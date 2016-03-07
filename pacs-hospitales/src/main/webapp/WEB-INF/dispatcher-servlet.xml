@@ -9,7 +9,7 @@
 
 	<mvc:annotation-driven />
 
-	<context:component-scan base-package="org.pe.vts" />
+	<context:component-scan base-package="org.pacs.pe" />
 
 	<mvc:resources location="/resources/" mapping="/resources/**" />
 
@@ -45,7 +45,12 @@
 			</list>
 		</property>
 	</bean>
-
+	
+	<bean id="viewResolver2" class="org.springframework.web.servlet.view.ResourceBundleViewResolver">
+  		<property name="order" value="1"/>
+  		<property name="basename" value="views"/>
+	</bean>
+    
 	<bean id="viewResolver"
 		class="org.springframework.web.servlet.view.UrlBasedViewResolver">
 		<property name="viewClass"

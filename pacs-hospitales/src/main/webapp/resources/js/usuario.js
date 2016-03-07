@@ -2,7 +2,7 @@ $(document).ready(function() {
 	var cod_usuario = null;
 	var row=null;
 	
-	//Buscar Usuarios
+	//Buscar Usuarioes
 	$("#buscarUsuario").click(function(e) {	
 		e.preventDefault();
 	
@@ -10,60 +10,57 @@ $(document).ready(function() {
 		
 		var formData = $('#busquedaUsuario').serialize();
 		
-		$.get("listUsuarios",formData, function(data, status) {
+		$('#pageBody').prepend(block);
+		$.get("listarUsuarios",formData, function(data, status) {
 			
-			//alert("Data: " + data + "\nStatus: " + status);
-		    
+			//alert("Data: " + data.objeto + "\nStatus: " + status);
+
+			block.remove();
+			
 			oTable.fnClearTable();
             
-            $.each(data, function(key, value) {
-            	  	
-            	parametros = value.cod_usuario + "," +  value.sistema.cod_sistema;
+            $.each(data.objeto, function(key, value) {
+            	//alert("Value: " + value );
             	
                 oTable.fnAddData([value.cod_usuario,
                                   value.sistema.cod_sistema,
                                   value.sistema.nombre,
-                                  value.nombre,value.apepat,
+                                  value.nombre,
+                                  value.apepat,
                                   value.apemat,
                                   value.correo,
                                   value.login,
                                   value.fecha_creacion,
                                   value.estado==0 ? "Activo" : "Inactivo",
-                                  '<a>' +
-                                  '<span id="editUsuario"  class="icon-pencil"></span> ' +
-                                  '</a>',
-                                  '<a>' + 
-                                  '<span  class="icon-close"></span></a>',
-                                  '<a>' + 
-                                  '<span  class="icon-user"></span></a>',
-                                  '<a>' + 
-                                  '<span  class="icon-users"></span></a>'
+                                  '<a><span id="editUsuario" class="icon-pencil"></span></a>',
+                                  '<a><span  class="icon-close"></span></a>',
+                                  '<a><span  class="icon-user"></span></a>',
+                                  '<a><span  class="icon-users"></span></a>'
                                   ]);
             });
             
             oTable.fnDraw();
-            //var $select = $('#selectMenus');
-            //var iCol = parseInt($(this).attr("data-column"));
-            /*var bVis = oTable.fnSettings().aoColumns[1].bVisible;
-            oTable.fnSetColumnVis(1, (bVis ? false : true));*/
 		});
 	});
-	//para modalAgregarUsuario
-	$("#btnClosePUsuario,#btnCerrarPUsuario").click(function(e) {
+	
+	//Bonotes Modal y Agregar Principal
+	$("#btnClosePUsuario,#btnCerrarPUsuario,#btnAgregarUsuario").click(function(e) {
 		$('.form-group').removeClass('has-error');
 		var validator = $( "#form_usuario" ).validate();
 		validator.resetForm();
 		$('#form_usuario').trigger("reset");
 		$('[name=estado]').select2("val", "");
 		$('#modalAgregarUsuario').modal('hide');
+		$("#form_usuario [name='nombre']").parent().removeClass('has-error');
+		
 		$("#spanLogin").empty();
 		$('#divLogin').hide();
 	});
-	
+	//Agregar Principal
 	$("#btnAgregarUsuario").click(function(e) {
 		cargarSistema();
 	});
-	
+
 	//cerrar para modalAsociarPerfil
 	$("#btnClosePAsocPerfil,#btnCerrarPAsocPerfil,#btnAgregarPAsocPerfil").click(function(e) {
 		$('#modalAsociarPerfil').modal('hide');
@@ -74,103 +71,88 @@ $(document).ready(function() {
 		$('#modalAsociarRol').modal('hide');
 	});
 	
-	//Agregar/Modificar Usuarios
-	$("#btnAgregarPUsuario").click(function(e) {
-		e.preventDefault();
-		var form = $('#form_usuario');
-		var oTable = $('#tableNormal').dataTable();
-		
-		if(form.valid()== true){
-			
-			var formData = $('#form_usuario').serialize();
-			
-			$('[name=cod_usuario]', '#form_usuario').val() == "" ? 
-				$.post("agregarUsuario",formData, function(data, status){
-					oTable.fnAddData( [
-	                                   data.objeto.cod_usuario,
-	                                   data.objeto.sistema.cod_sistema,
-	                                   data.objeto.sistema.nombre,
-	                                   data.objeto.nombre,
-	                                   data.objeto.apepat,
-	                                   data.objeto.apemat,
-	                                   data.objeto.correo,
-	                                   data.objeto.login,
-	                                   data.objeto.fecha_creacion,
-	                                   data.objeto.estado==0 ? "Activo" : "Inactivo",
-	                        		   '<a>' +
-	                                   '<span id="editUsuario" class="icon-pencil"></span> ' +
-	                                   '</a>',
-	                                   '<a>' + 
-	                                   '<span  class="icon-close"></span></a>',
-	                                   '<a>' + 
-	                                   '<span  class="icon-user"></span></a>',
-	                                   '<a>' + 
-	                                   '<span  class=" icon-users"></span></a>']
-	                                 );
-					toastr.success(data.mensaje, 'Mensaje');
-				})
-				:$.post("actualizarUsuario",formData, function(data, status){
-					
-					oTable.fnUpdate( [
-	                                   data.objeto.cod_usuario,
-	                                   data.objeto.sistema.cod_sistema,
-	                                   data.objeto.sistema.nombre,
-	                                   data.objeto.nombre,
-	                                   data.objeto.apepat,
-	                                   data.objeto.apemat,
-	                                   data.objeto.correo,
-	                                   data.objeto.login,
-	                                   data.objeto.fecha_creacion,
-	                                   data.objeto.estado==0 ? "Activo" : "Inactivo",
-	                        		   '<a>' +
-	                                   '<span id="editUsuario" class="icon-pencil"></span> ' +
-	                                   '</a>',
-	                                   '<a>' + 
-	                                   '<span  class="icon-close"></span></a>',
-	                                   '<a>' + 
-	                                   '<span  class="icon-user"></span></a>',
-	                                   '<a>' + 
-	                                   '<span  class=" icon-users"></span></a>'],row
-	                                 );
-					toastr.success(data.mensaje, 'Mensaje');
-			    });	
-	          /*  var bVis = oTable.fnSettings().aoColumns[1].bVisible;
-	            oTable.fnSetColumnVis(1, (bVis ? false : true));*/
-			$('#modalAgregarUsuario').modal('hide');
-		}
-
-	});
-	
+	//Editar Usuario
 	$('#tableNormal').on( 'click', '#editUsuario', function (e) {
         e.preventDefault();
-        var oTable = $('#tableNormal').dataTable();
-        
+     
         cod_usuario = $(this).parents('tr:first').find('td:first').text();
-        
         row = $(this).parents('tr')[0];
-       
-        var cod_sistema = oTable.fnGetData(row)[1]; 
-
-        $.get("getUsuario",{ cod_usuario : cod_usuario }, function(data, status) {
+        
+        var oTable = $('#tableNormal').dataTable();
+        var cod_sistema = oTable.fnGetData(row)[1];
+        $.get("buscaUsuario",{ cod_usuario : cod_usuario }, function(data, status) {
            
-    		$.each(data, function(key, value){
+			$.each(data.objeto, function(key, value){
         		if(value != null){    			
         			key =='estado' ? 
         						$('[name=estado]','#form_usuario').select2("val", value) : 
         							$('[name='+key+']', '#form_usuario').val(value);
-        			if(key =='login')
+					if(key =='login')
         			{
         				$("#spanLogin").text(value);
         				$('#divLogin').show();
         			}
         		}
         	});
-    		cargarSistema(cod_sistema);
+			cargarSistema(cod_sistema);
         	$('#modalAgregarUsuario').modal('show');
-    	});		    
+		});
 	});
 	
+	//Agregar Usuario
+	$("#form_usuario").submit(function(e) {
+		e.preventDefault();
+		
+		var form = $('#form_usuario');
+		var oTable = $('#tableNormal').dataTable();
+		
+		var formData = form.serialize();
+		
+		if(form.valid() == true){
+			$('[name=cod_usuario]', '#form_usuario').val() == "" ? 
+				$.post("saveUsuario",formData, function(data, status){
+					oTable.fnAddData( [
+										data.objeto.cod_usuario,
+										data.objeto.sistema.cod_sistema,
+										data.objeto.sistema.nombre,
+										data.objeto.nombre,
+										data.objeto.apepat,
+										data.objeto.apemat,
+										data.objeto.correo,
+										data.objeto.login,
+										data.objeto.fecha_creacion,
+										data.objeto.estado==0 ? "Activo" : "Inactivo",
+										'<a><span id="editUsuario" class="icon-pencil"></span></a>',
+										'<a><span  class="icon-close"></span></a>',
+										'<a><span  class="icon-user"></span></a>',
+										'<a><span  class="icon-users"></span></a>']
+	                                 );
+					toastr.success(data.mensaje, 'Mensaje');
+				})
+				:$.post("updateUsuario",formData, function(data, status){
+					oTable.fnUpdate( [
+										data.objeto.cod_usuario,
+										data.objeto.sistema.cod_sistema,
+										data.objeto.sistema.nombre,
+										data.objeto.nombre,
+										data.objeto.apepat,
+										data.objeto.apemat,
+										data.objeto.correo,
+										data.objeto.login,
+										data.objeto.fecha_creacion,
+										data.objeto.estado==0 ? "Activo" : "Inactivo",
+										'<a><span id="editUsuario" class="icon-pencil"></span></a>',
+										'<a><span  class="icon-close"></span></a>',
+										'<a><span  class="icon-user"></span></a>',
+										'<a><span  class="icon-users"></span></a>'],row
+	                                 );
+					toastr.success(data.mensaje, 'Mensaje');
+			    });	
+			$('#modalAgregarUsuario').modal('hide');
+		}	
+	});
 	
+	//Eliminar Usuario
 	$('#tableNormal').on( 'click', 'span.icon-close', function (e) {
         e.preventDefault();
      
@@ -179,18 +161,19 @@ $(document).ready(function() {
         $('#deleteModalUsuario').modal('show');
 	});
 	
-	//Eliminar Usuario
+	//Eliminar Usuario en Modal
 	$("#btnEliminarUsuario").click(function(e) {
 		e.preventDefault();
 		var oTable = $('#tableNormal').dataTable();
 		oTable.fnDeleteRow(row);
 		
 		var formData = $('#form_usuario').serialize();
-		 $.post("eliminarUsuario",{ cod_usuario : cod_usuario }, function(data, status){
+		 $.post("deleteUsuario",{ cod_usuario : cod_usuario }, function(data, status){
 		        toastr.success(data.mensaje, 'Mensaje');
 		    });
 		$('#deleteModalUsuario').modal('hide');
 	});
+	
 	//Obtener login de usuario
 	$("input[name='apepat']").blur(function() {
 		  var formData = $('#form_usuario').serialize();
@@ -214,9 +197,13 @@ $(document).ready(function() {
 			var sistema = oTable.fnGetData(row)[2]; 
 
 			var usuario = oTable.fnGetData(row)[3]; 
+			
+			var cod_sistema = oTable.fnGetData(row)[1]; 
 
 			$("#lblPerfilSistema").text(sistema);
 			$("#lblPerfilUsuario").text(usuario);
+			
+			$('[name="AP_cod_sistema"]', '#form_asociarPerfil').val(cod_sistema);
 			
 	        $.get("getPerfilUsuario", { cod_usuario : cod_usuario },function(data, status) {
 	        	if(data.objeto!=null)
@@ -261,19 +248,21 @@ $(document).ready(function() {
 			var sistema = oTable.fnGetData(row)[2]; 
 	
 			var usuario = oTable.fnGetData(row)[3]; 
+			
+			var cod_sistema = oTable.fnGetData(row)[1]; 
 	
 			$("#lblRolSistema").text(sistema);
 			$("#lblRolUsuario").text(usuario);
 			
-	        $.get("getRolUsuario", { cod_usuario : cod_usuario },function(data, status) {
+			$('[name="AR_cod_sistema"]', '#form_asociarRol').val(cod_sistema);
+			
+	        $.get("getRolUsuario", { cod_usuario : cod_usuario, "sistema.cod_sistema" : cod_sistema },function(data, status) {
 	        	if(data.objeto!=null)
 	        	{	
 	        		//limpiar seleccionados
 	    	        $("#selectRoles option:selected").removeAttr("selected");
 	    	        //limpiar multiselect y refresh control
 	    	        $('#selectRoles').empty();
-	    	        $('#selectRoles').multiSelect('refresh');
-
 	    	        $('#selectRoles').multiSelect('refresh');
 	    	        
 		        		$.each(data.objeto, function(key, value) {
@@ -295,6 +284,7 @@ $(document).ready(function() {
 	        	}
 			});
 	});
+	
 	$("#btnAgregarPAsocPerfil").click(function(e) {
 		guardarMultiSelect("perfil");
 	});
@@ -328,4 +318,5 @@ $(document).ready(function() {
 			});			
 		}
     }
+
 });

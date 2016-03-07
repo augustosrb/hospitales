@@ -2,7 +2,7 @@ $(document).ready(function() {
 	var cod_perfil = null;
 	var row=null;
 	
-	//Buscar Perfils
+	//Buscar Perfiles
 	$("#buscarPerfil").click(function(e) {	
 		e.preventDefault();
 	
@@ -10,18 +10,21 @@ $(document).ready(function() {
 		
 		var formData = $('#busquedaPerfil').serialize();
 		
-		$.get("listPerfils",formData, function(data, status) {
+		$('#pageBody').prepend(block);
+		$.get("listarPerfiles",formData, function(data, status) {
 			
-			//alert("Data: " + data + "\nStatus: " + status);
-		    
+			//alert("Data: " + data.objeto + "\nStatus: " + status);
+
+			block.remove();
+			
 			oTable.fnClearTable();
             
-            $.each(data, function(key, value) {
-            	  	
+            $.each(data.objeto, function(key, value) {
+            	//alert("Value: " + value );
+            	
                 oTable.fnAddData([value.cod_perfil,
-                                  value.sistema.cod_sistema,
                                   value.sistema.nombre,
-                                  value.nombre,value.descripcion,value.fecha_creacion,
+                                  value.sistema.cod_sistema,value.nombre,value.descripcion,value.fecha_creacion,
                                   value.estado==0 ? "Activo" : "Inactivo",
                                   '<a>' +
                                   '<span id="editPerfil" class="icon-pencil"></span> ' +
@@ -32,91 +35,45 @@ $(document).ready(function() {
                                   '<span  class="icon-layers"></span></a>'
                                   ]);
             });
+            
             oTable.fnDraw();
 		});
 	});
 	
-	$("#btnClosePPerfil,#btnCerrarPPerfil").click(function(e) {
+	//Bonotes Modal y Agregar Principal
+	$("#btnClosePPerfil,#btnCerrarPPerfil,#btnAgregarPerfil").click(function(e) {
 		$('.form-group').removeClass('has-error');
 		var validator = $( "#form_perfil" ).validate();
 		validator.resetForm();
 		$('#form_perfil').trigger("reset");
 		$('[name=estado]').select2("val", "");
 		$('#modalAgregarPerfil').modal('hide');
+		$("#form_perfil [name='nombre']").parent().removeClass('has-error');
 	});
-
-	$("#btnAgregarPerfil").click(function(e) {
-		cargarSistema();
-	});
-	
 	
 	$("#btnClosePAsocMenu,#btnCerrarPAsocMenu,#btnAgregarPAsocMenu").click(function(e) {
 		$('#modalAsociarMenu').modal('hide');
 	});
 	
-	//Agregar/Modificar Perfils
-	$("#btnAgregarPPerfil").click(function(e) {
-		e.preventDefault();
-		var form = $('#form_perfil');
-		var oTable = $('#tableNormal').dataTable();
-		
-		if(form.valid()== true){
-			
-			var formData = $('#form_perfil').serialize();
-			
-			$('[name=cod_perfil]', '#form_perfil').val() == "" ? 
-				$.post("agregarPerfil",formData, function(data, status){
-					oTable.fnAddData( [
-	                                   data.objeto.cod_perfil,
-	                                   data.objeto.sistema.cod_sistema,
-	                                   data.objeto.sistema.nombre,
-	                                   data.objeto.nombre,
-	                                   data.objeto.descripcion,
-	                                   data.objeto.fecha_creacion,
-	                                   data.objeto.estado==0 ? "Activo" : "Inactivo",
-	                        		   '<a>' +
-	                                   '<span id="editPerfil" class="icon-pencil"></span> ' +
-	                                   '</a>',
-	                                   '<a>' + 
-	                                   '<span  class="icon-close"></span></a>',
-	                                   '<a>' + 
-	                                   '<span  class="icon-layers"></span></a>']
-	                                 );
-					toastr.success(data.mensaje, 'Mensaje');
-				})
-				:$.post("actualizarPerfil",formData, function(data, status){
-					oTable.fnUpdate( [
-	                                   data.objeto.cod_perfil,
-	                                   data.objeto.sistema.cod_sistema,
-	                                   data.objeto.sistema.nombre,
-	                                   data.objeto.nombre,
-	                                   data.objeto.descripcion,
-	                                   data.objeto.fecha_creacion,
-	                                   data.objeto.estado==0 ? "Activo" : "Inactivo",
-	                        		   '<a>' +
-	                                   '<span id="editPerfil" class="icon-pencil"></span> ' +
-	                                   '</a>',
-	                                   '<a>' + 
-	                                   '<span  class="icon-close"></span></a>',
-	                                   '<a>' + 
-	                                   '<span  class="icon-layers"></span></a>'],row
-	                                 );
-					toastr.success(data.mensaje, 'Mensaje');
-			    });	
-			$('#modalAgregarPerfil').modal('hide');
-		}
-
+	//Agregar Principal
+	$("#btnAgregarPerfil").click(function(e) {
+		cargarSistema();
 	});
 	
+	
+	
+	//Editar Perfil
 	$('#tableNormal').on( 'click', '#editPerfil', function (e) {
         e.preventDefault();
-        var oTable = $('#tableNormal').dataTable();
+     
         cod_perfil = $(this).parents('tr:first').find('td:first').text();
         row = $(this).parents('tr')[0];
-        var cod_sistema = oTable.fnGetData(row)[1];
-        $.get("getPerfil",{ cod_perfil : cod_perfil }, function(data, status) {
+        
+        var oTable = $('#tableNormal').dataTable();
+        var cod_sistema = oTable.fnGetData(row)[2];
+        $.get("buscaPerfil",{ cod_perfil : cod_perfil }, function(data, status) {
            
-			$.each(data, function(key, value){
+			$.each(data.objeto, function(key, value){
         		if(value != null){    			
         			key =='estado' ? 
         						$('[name=estado]','#form_perfil').select2("val", value) : 
@@ -128,6 +85,70 @@ $(document).ready(function() {
 		});
 	});
 	
+	//Agregar Perfil
+	$("#form_perfil").submit(function(e) {
+		e.preventDefault();
+		
+		var form = $('#form_perfil');
+		var oTable = $('#tableNormal').dataTable();
+		
+		var formData = form.serialize();
+		
+		$.get("isPerfilNombreUnique",formData, function(data, status) {
+			if(data.objeto==true)
+			{
+				toastr.info(data.mensaje, 'Mensaje');
+				$("#form_perfil [name='nombre']").parent().addClass('has-error');
+			}
+			else
+			{
+				if(form.valid() == true){
+					$('[name=cod_perfil]', '#form_perfil').val() == "" ? 
+						$.post("savePerfil",formData, function(data, status){
+							oTable.fnAddData( [
+											   data.objeto.cod_perfil,
+											   data.objeto.sistema.nombre,
+							                   data.objeto.sistema.cod_sistema,
+			                                   data.objeto.nombre,
+			                                   data.objeto.descripcion,
+			                                   data.objeto.fecha_creacion,
+			                                   data.objeto.estado==0 ? "Activo" : "Inactivo",
+			                        		   '<a>' +
+			                                   '<span id="editPerfil" class="icon-pencil"></span> ' +
+			                                   '</a>',
+			                                   '<a>' + 
+			                                   '<span  class="icon-close"></span></a>',
+			                                   '<a>' + 
+			                                   '<span  class="icon-layers"></span></a>']
+			                                 );
+							toastr.success(data.mensaje, 'Mensaje');
+						})
+						:$.post("updatePerfil",formData, function(data, status){
+							oTable.fnUpdate( [
+							                   data.objeto.cod_perfil,
+											   data.objeto.sistema.nombre,
+							                   data.objeto.sistema.cod_sistema,                                   
+			                                   data.objeto.nombre,
+			                                   data.objeto.descripcion,
+			                                   data.objeto.fecha_creacion,
+			                                   data.objeto.estado==0 ? "Activo" : "Inactivo",
+			                        		   '<a>' +
+			                                   '<span id="editPerfil" class="icon-pencil"></span> ' +
+			                                   '</a>',
+			                                   '<a>' + 
+			                                   '<span  class="icon-close"></span></a>',
+			                                   '<a>' + 
+			                                   '<span  class="icon-layers"></span></a>'],row
+			                                 );
+							toastr.success(data.mensaje, 'Mensaje');
+					    });	
+					$('#modalAgregarPerfil').modal('hide');
+				}	
+			}
+		});
+	});
+	
+	//Eliminar Perfil
 	$('#tableNormal').on( 'click', 'span.icon-close', function (e) {
         e.preventDefault();
      
@@ -136,14 +157,14 @@ $(document).ready(function() {
         $('#deleteModalPerfil').modal('show');
 	});
 	
-	//Eliminar Perfil
+	//Eliminar Perfil en Modal
 	$("#btnEliminarPerfil").click(function(e) {
 		e.preventDefault();
 		var oTable = $('#tableNormal').dataTable();
 		oTable.fnDeleteRow(row);
 		
 		var formData = $('#form_perfil').serialize();
-		 $.post("eliminarPerfil",{ cod_perfil : cod_perfil }, function(data, status){
+		 $.post("deletePerfil",{ cod_perfil : cod_perfil }, function(data, status){
 		        toastr.success(data.mensaje, 'Mensaje');
 		    });
 		$('#deleteModalPerfil').modal('hide');
@@ -152,8 +173,20 @@ $(document).ready(function() {
 	//Multiselect Menus
 	$('#tableNormal').on( 'click', 'span.icon-layers', function (e) {
 		e.preventDefault(); 
+		
+			var oTable = $('#tableNormal').dataTable();
+		
+			row = $(this).parents('tr')[0];
+			
 		    var $select = $('#selectMenus');
 	        cod_perfil = $(this).parents('tr:first').find('td:first').text();
+			
+	        
+	        var perfil = oTable.fnGetData(row)[3]; 
+			var sistema = oTable.fnGetData(row)[1]; 
+			
+	        $("#lblPerfil").text(perfil);
+			$("#lblSistema").text(sistema);
 			
 	        $.get("getMenuPerfil", { cod_perfil : cod_perfil },function(data, status) {
 	        	if(data.objeto!=null)
@@ -205,5 +238,5 @@ $(document).ready(function() {
 			}
 		});	
 	});
-	
+
 });
