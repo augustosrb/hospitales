@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<context:component-scan base-package="org.pe.vts" />
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:database.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+	</bean>
+
+	<bean id="dataSource"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="url">
+			<value>jdbc:postgresql://190.117.179.149:5432/infast</value>
+		</property>
+		<property name="driverClassName">
+			<value>org.postgresql.Driver</value>
+		</property>
+		<property name="username">
+			<value>postgres</value>
+		</property>
+		<property name="password">
+			<value>postgres</value>
+		</property>
+	</bean>
+
+	<tx:annotation-driven transaction-manager="miGestorTransaccional" />
+
+	<bean id="miGestorTransaccional"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- Autentication -->
+	<import resource="security.xml" />
+	
+	<bean id="encoder"
+		class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+
+	<bean id="customIdentificador" class="org.pe.vts.seguridad.security.CustomUserDetailsService" />
+	<!-- Autentication -->
+</beans>

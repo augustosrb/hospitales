@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+
+	<definition name="common" template="/WEB-INF/layout/classic.jsp">
+		<put-attribute name="header" value="/WEB-INF/layout/header.jsp" />
+		<put-attribute name="menu" value="/WEB-INF/layout/menu.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/layout/footer.jsp" />
+	</definition>
+
+	<definition name="loginTemplate"
+		template="/WEB-INF/jsp/autenticacion/loginTemplate.jsp">
+	</definition>
+
+	<definition name="errorTemplate" template="/WEB-INF/jsp/error/errorTemplate.jsp">
+	</definition>
+
+	<definition name="login" extends="loginTemplate">
+		<put-attribute name="body"
+			value="/WEB-INF/jsp/autenticacion/login.jsp" />
+	</definition>
+
+	<definition name="index" extends="common">
+		<put-attribute name="body" value="/WEB-INF/jsp/index.jsp" />
+	</definition>
+
+	<definition name="403" extends="errorTemplate">
+		<put-attribute name="body" value="/WEB-INF/jsp/error/error403.jsp" />
+	</definition>
+
+	<definition name="mntSistemas" extends="common">
+		<put-attribute name="body"
+			value="/WEB-INF/jsp/seguridad/sistema/mntSistemas.jsp" />
+	</definition>
+
+	<definition name="mntRoles" extends="common">
+		<put-attribute name="body"
+			value="/WEB-INF/jsp/seguridad/rol/mntRoles.jsp" />
+	</definition>
+
+	<definition name="mntPerfiles" extends="common">
+		<put-attribute name="body"
+			value="/WEB-INF/jsp/seguridad/perfil/mntPerfiles.jsp" />
+	</definition>
+
+	<definition name="mntMenus" extends="common">
+		<put-attribute name="body"
+			value="/WEB-INF/jsp/seguridad/menu/mntMenus.jsp" />
+	</definition>
+
+	<definition name="mntUsuarios" extends="common">
+		<put-attribute name="body"
+			value="/WEB-INF/jsp/seguridad/usuario/mntUsuarios.jsp" />
+	</definition>
+
+	<definition name="lstTrabajos" extends="common">
+		<put-attribute name="body"
+			value="/WEB-INF/jsp/pacs/listaTrabajo.jsp" />
+	</definition>
+
+	<definition name="lstEstudios" extends="common">
+		<put-attribute name="body"
+			value="/WEB-INF/jsp/pacs/listaEstudios.jsp" />
+	</definition>
+
+
+</tiles-definitions>
