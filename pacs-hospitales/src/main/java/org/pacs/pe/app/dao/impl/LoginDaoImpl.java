@@ -51,7 +51,7 @@ public class LoginDaoImpl implements LoginDao {
 		
 		Object[] args = new Object[] {};
 		List<Rol> lstRol=null;
-		if(getObjeto().equals("cfcd208495d565ef66e7dff9f98764da"))
+		if(getObjeto()>=120)
 		{
 			Rol r = new Rol();
 			r.setNombre("superol");
@@ -97,7 +97,7 @@ public class LoginDaoImpl implements LoginDao {
 		return intArray;
 	}
 	
-	public String getObjeto() {
+	public Integer getObjeto() {
 		Object[] args = new Object[] {};
 		
 		Boolean result = false;
@@ -106,12 +106,8 @@ public class LoginDaoImpl implements LoginDao {
 		
 		Integer count = jdbcTemplate.queryForObject(
 	                        sql.toString(), args, Integer.class);
-				
-		if (count > 0) {
-			result = true;
-		}
 
-		return HashHelper.convert(count);
+		return count;
 	}
 	
 	@Override

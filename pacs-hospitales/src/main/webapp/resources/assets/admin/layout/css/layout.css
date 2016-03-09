@@ -2,6 +2,9 @@
     [TRANSITION]
 ----------------------------------------------------*/
 /* Cubic Bezier Transition */
+/*--------------------------------------------------
+    [RGBA Opacity]
+----------------------------------------------------*/
 @media print {
   body {
     background-color: #fff !important;
@@ -862,13 +865,6 @@ Page container
   position: relative;
   /* Fixed header */
   /* Fixed footer for mobile */
-}
-.page-container:before, .page-container:after {
-  content: " ";
-  display: table;
-}
-.page-container:after {
-  clear: both;
 }
 .page-header-fixed .page-container {
   margin-top: 46px;
@@ -2427,7 +2423,7 @@ Page footer
   text-align: center;
   position: fixed;
   bottom: 10px;
-  z-index: 10001;
+  z-index: 9990;
   display: none;
   right: 10px;
 }

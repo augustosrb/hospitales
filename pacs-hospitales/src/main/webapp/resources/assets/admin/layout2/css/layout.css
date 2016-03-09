@@ -2,6 +2,9 @@
     [TRANSITION]
 ----------------------------------------------------*/
 /* Cubic Bezier Transition */
+/*--------------------------------------------------
+    [RGBA Opacity]
+----------------------------------------------------*/
 @media print {
   body {
     background-color: #fff !important;
@@ -2296,7 +2299,7 @@ Page footer
   padding: 2px;
   text-align: center;
   position: fixed;
-  z-index: 10001;
+  z-index: 9990;
   bottom: 10px;
   display: none;
   right: 10px;

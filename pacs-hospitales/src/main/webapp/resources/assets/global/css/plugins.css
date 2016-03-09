@@ -5,6 +5,9 @@
     [TRANSITION]
 ----------------------------------------------------*/
 /* Cubic Bezier Transition */
+/*--------------------------------------------------
+    [RGBA Opacity]
+----------------------------------------------------*/
 /***
 Bootstrap Colorpicker
 ***/
@@ -330,6 +333,12 @@ Bootstrap Modal
 .modal-backdrop {
   position: fixed;
   bottom: 0;
+}
+
+.modal-scrollable {
+  overflow: hidden !important;
+  z-index: 10051;
+  overflow-y: scroll !important;
 }
 
 /***

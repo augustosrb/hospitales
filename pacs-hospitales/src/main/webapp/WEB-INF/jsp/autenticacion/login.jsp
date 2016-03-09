@@ -4,7 +4,7 @@
 
 
 <!-- BEGIN LOGIN FORM -->
-<form class="login-form" action="/pacs/j_spring_security_check"
+<form class="login-form" action="/pacs-hospitales/j_spring_security_check"
 	method="post">
 	<c:if test="${not empty SPRING_SECURITY_LAST_EXCEPTION}">
 		<font color="red"> Usuario o contraseña incorrectos.

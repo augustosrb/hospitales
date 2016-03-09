@@ -1,7 +1,7 @@
 $(document).ready(function() {
     $.extend(jQuery.validator.messages, {
     	 required: "Este campo es obligatorio.",
-    	  remote: "Por favor, rellena este campo.",
+    	  remote: "Este nombre esta es uso.",
     	  email: "Por favor, escribe una dirección de correo válida",
     	  url: "Por favor, escribe una URL válida.",
     	  date: "Por favor, escribe una fecha válida.",

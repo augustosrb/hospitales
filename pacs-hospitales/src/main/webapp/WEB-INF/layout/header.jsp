@@ -34,9 +34,9 @@
 							${pageContext.request.userPrincipal.name} </span> <!-- DOC: Do not remove below empty space(&nbsp;) as its purposely used -->
 				</a>
 					<ul class="dropdown-menu dropdown-menu-default">
-						<li><a href="extra_profile.html"> <i class="icon-user"></i>
+						<!--  <li><a href="extra_profile.html"> <i class="icon-user"></i>
 								My Profile
-						</a></li>
+						</a></li>-->
 						<li><a href="<spring:url value="/logout"></spring:url>">
 								<i class="icon-key"></i> Log Out
 						</a></li>
